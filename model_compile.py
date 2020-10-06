@@ -15,10 +15,11 @@ keras.backend.clear_session()
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-TR_DIR = "E:\\ds-1"
+MODEL_PATH = "E:\\models"
+TR_DIR = "E:\\ds-5"
 IMG_SIZE = (1024, 1024)
 BATCH_SIZE = 8
-EPOCHS = 60
+EPOCHS = 10
 filepath = "\\tmp\\checkpoint"
 func = 'relu'
 
@@ -76,7 +77,7 @@ tr_dataset = tr_dataset.prefetch(buffer_size=AUTOTUNE)
 
 model = build_model()
 
-history = model.fit(
+model = model.fit(
     tr_dataset,
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
@@ -86,4 +87,5 @@ history = model.fit(
 )
 
 model.summary()
-show_accuracy()
+
+model.save(MODEL_PATH)
