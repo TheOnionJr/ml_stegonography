@@ -15,9 +15,9 @@ keras.backend.clear_session()
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-TR_DIR = "E:\\ds-1\\train"
+TR_DIR = "E:\\ds-1"
 IMG_SIZE = (1024, 1024)
-BATCH_SIZE = 10
+BATCH_SIZE = 8
 EPOCHS = 60
 filepath = "\\tmp\\checkpoint"
 func = 'relu'
@@ -25,19 +25,20 @@ func = 'relu'
 def build_model():
     model = keras.models.Sequential()
 
-    model.add(Conv2D(26,(3,3),activation=func))
+    model.add(Conv2D(32,(7,7)))
     model.add(MaxPooling2D(pool_size=(2,2)))
-    model.add(Conv2D(26,(3,3),activation=func))
+    model.add(Conv2D(32,(5,5),activation=func))
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Flatten())
+    model.add(Dense(128))
+    model.add(Dense(256, activation=func))
+    model.add(Dense(128, activation=func))
     model.add(Dense(64, activation=func))
-    model.add(Dense(125, activation=func))
-    model.add(Dense(125, activation='tanh'))
-    model.add(Dense(32, activation='tanh'))
-    model.add(Dense(2))
+    model.add(Dense(32, activation=func))
+    model.add(Dense(2, activation=func))
 
     model.compile(
-        optimizer=keras.optimizers.Adam(),
+        optimizer=keras.optimizers.Adam(learning_rate=0.001,beta_1=0.9, beta_2=0.999, epsilon=1e-07),
         loss="binary_crossentropy",
         metrics=["accuracy"],
     )
@@ -54,7 +55,7 @@ def show_accuracy():
 
 callbacks = [
     tf.keras.callbacks.ModelCheckpoint(
-        filepath="E:/tmp/save_{epoch}.h5",
+        filepath="E:/tmp/t_save.h5",
     )
 ]
 
