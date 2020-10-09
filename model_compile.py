@@ -15,11 +15,12 @@ keras.backend.clear_session()
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-MODEL_PATH = "E:\\models"
+MODEL_PATH = "E:\\models\\nsf5.h5"
 TR_DIR = "E:\\ds-5"
+#VAL_DIR = "E:\\ds-5\\validate"
 IMG_SIZE = (1024, 1024)
-BATCH_SIZE = 8
-EPOCHS = 10
+BATCH_SIZE = 16
+EPOCHS = 5
 filepath = "\\tmp\\checkpoint"
 func = 'relu'
 
@@ -29,6 +30,18 @@ def build_model():
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Conv2D(32,(5,5),activation=func))
     model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(32,(5,5),activation=func))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(32,(5,5),activation=func))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(32,(3,3),activation=func))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(32,(3,3),activation=func))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(32,(3,3),activation=func))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(32,(3,3),activation=func))
+    model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Flatten())
     model.add(Dense(128))
     model.add(Dense(256, activation=func))
@@ -37,7 +50,7 @@ def build_model():
     model.add(Dense(32, activation=func))
     model.add(Dense(2, activation=func))
     model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=0.001,beta_1=0.9, beta_2=0.999, epsilon=1e-07),
+        optimizer=keras.optimizers.Nadam(learning_rate=0.0001,beta_1=0.9, beta_2=0.999, epsilon=1e-07),
         loss="binary_crossentropy",
         metrics=["accuracy"],
     )
@@ -73,11 +86,12 @@ tr_dataset = tf.keras.preprocessing.image_dataset_from_directory(
 
 #Performance:
 tr_dataset = tr_dataset.prefetch(buffer_size=AUTOTUNE)
+#val_dataset = val_dataset.prefetch(buffer_size=AUTOTUNE)
 #############
 
 model = build_model()
 
-model = model.fit(
+history = model.fit(
     tr_dataset,
     epochs=EPOCHS,
     batch_size=BATCH_SIZE,
@@ -85,7 +99,5 @@ model = model.fit(
     workers=8,
     callbacks=callbacks,
 )
-
-model.summary()
-
 model.save(MODEL_PATH)
+model.summary()
