@@ -10,19 +10,34 @@ import time
 import os
 import matplotlib.pyplot as plt
 import numpy
+import csv
+
+
+
 
 keras.backend.clear_session()
 
+physical_devices = tf.config.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(physical_devices[0], True)
+
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-MODEL_PATH = "E:\\models\\nsf5.h5"
+MODEL_PATH = "model"
+CSV_PATH = "data\\history2.csv"
 TR_DIR = "E:\\ds-5"
 #VAL_DIR = "E:\\ds-5\\validate"
 IMG_SIZE = (1024, 1024)
 BATCH_SIZE = 16
-EPOCHS = 5
+EPOCHS = 25
 filepath = "\\tmp\\checkpoint"
 func = 'relu'
+
+initial_learning_rate = 0.000001
+lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+    initial_learning_rate,
+    decay_steps=100000,
+    decay_rate=0.96,
+    staircase=True)
 
 def build_model():
     model = keras.models.Sequential()
@@ -34,14 +49,13 @@ def build_model():
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Conv2D(32,(5,5),activation=func))
     model.add(MaxPooling2D(pool_size=(2,2)))
-    model.add(Conv2D(32,(3,3),activation=func))
+    model.add(Conv2D(32,(5,5),activation=func))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(32,(5,5),activation=func))
+    model.add(MaxPooling2D(pool_size=(2,2)))
+    model.add(Conv2D(32,(5,5),activation=func))
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Conv2D(32,(3,3),activation=func))
-    model.add(MaxPooling2D(pool_size=(2,2)))
-    model.add(Conv2D(32,(3,3),activation=func))
-    model.add(MaxPooling2D(pool_size=(2,2)))
-    model.add(Conv2D(32,(3,3),activation=func))
-    model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Flatten())
     model.add(Dense(128))
     model.add(Dense(256, activation=func))
@@ -50,7 +64,7 @@ def build_model():
     model.add(Dense(32, activation=func))
     model.add(Dense(2, activation=func))
     model.compile(
-        optimizer=keras.optimizers.Nadam(learning_rate=0.0001,beta_1=0.9, beta_2=0.999, epsilon=1e-07),
+        optimizer=keras.optimizers.Adam(learning_rate=lr_schedule,beta_1=0.9, beta_2=0.999, epsilon=1e-07),
         loss="binary_crossentropy",
         metrics=["accuracy"],
     )
@@ -99,5 +113,11 @@ history = model.fit(
     workers=8,
     callbacks=callbacks,
 )
+
+print(history.history)
 model.save(MODEL_PATH)
+with open(CSV_PATH, 'a+', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    for i in range(EPOCHS):
+        writer.writerow([ history.history["loss"][i], history.history["accuracy"][i]])
 model.summary()

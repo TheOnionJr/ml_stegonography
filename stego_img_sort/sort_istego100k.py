@@ -3,8 +3,8 @@ from shutil import copyfile
 from multiprocessing import Pool
 
 json_path = "img_properties.json"
-src_path = "E:\\ds-1\\stego\\"
-dst_path = "E:\\ds-4\\"
+src_path = "E:\\ds-1\\cover\\"
+dst_path = "E:\\clean_sort\\"
 
 
 def img_cpy(list):
