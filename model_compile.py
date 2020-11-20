@@ -12,9 +12,6 @@ import matplotlib.pyplot as plt
 import numpy
 import csv
 
-
-
-
 keras.backend.clear_session()
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -22,21 +19,20 @@ tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
-MODEL_PATH = "model"
-CSV_PATH = "data\\history2.csv"
-TR_DIR = "E:\\ds-5"
-#VAL_DIR = "E:\\ds-5\\validate"
+MODEL_PATH = ""
+CSV_PATH = ""
+TR_DIR = ""
 IMG_SIZE = (1024, 1024)
-BATCH_SIZE = 16
-EPOCHS = 25
+BATCH_SIZE = 12
+EPOCHS = 10
 filepath = "\\tmp\\checkpoint"
 func = 'relu'
 
-initial_learning_rate = 0.000001
+initial_learning_rate = 0.0001
 lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
     initial_learning_rate,
     decay_steps=100000,
-    decay_rate=0.96,
+    decay_rate=0.90,
     staircase=True)
 
 def build_model():
@@ -49,20 +45,26 @@ def build_model():
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Conv2D(32,(5,5),activation=func))
     model.add(MaxPooling2D(pool_size=(2,2)))
-    model.add(Conv2D(32,(5,5),activation=func))
-    model.add(MaxPooling2D(pool_size=(2,2)))
-    model.add(Conv2D(32,(5,5),activation=func))
-    model.add(MaxPooling2D(pool_size=(2,2)))
-    model.add(Conv2D(32,(5,5),activation=func))
-    model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Conv2D(32,(3,3),activation=func))
     model.add(Flatten())
-    model.add(Dense(128))
+    model.add(Dense(288))
     model.add(Dense(256, activation=func))
+    model.add(Dense(256, activation=func))
+    model.add(Dense(256, activation=func))
+    model.add(Dense(256, activation=func))
+    model.add(Dense(256, activation=func))
+    model.add(Dense(256, activation=func))
+    model.add(Dense(256, activation=func))
+    model.add(Dense(256, activation=func))
+    model.add(Dense(128, activation=func))
+    model.add(Dense(128, activation=func))
+    model.add(Dense(128, activation=func))
+    model.add(Dense(128, activation=func))
+    model.add(Dense(128, activation=func))
     model.add(Dense(128, activation=func))
     model.add(Dense(64, activation=func))
     model.add(Dense(32, activation=func))
-    model.add(Dense(2, activation=func))
+    model.add(Dense(1, activation='sigmoid'))
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=lr_schedule,beta_1=0.9, beta_2=0.999, epsilon=1e-07),
         loss="binary_crossentropy",
@@ -71,17 +73,9 @@ def build_model():
 
     return model
 
-def show_accuracy():
-    plt.plot((history.history['accuracy'])*10)
-    plt.title('model accuracy')
-    plt.ylabel('accuracy')
-    plt.xlabel('epoch')
-    plt.legend(['train', 'test'], loc='upper left')
-    plt.show()
-
 callbacks = [
     tf.keras.callbacks.ModelCheckpoint(
-        filepath="E:/tmp/t_save.h5",
+        filepath=filepath,
     )
 ]
 
@@ -94,7 +88,7 @@ tr_dataset = tf.keras.preprocessing.image_dataset_from_directory(
     color_mode="rgb",
     batch_size=BATCH_SIZE,
     image_size = IMG_SIZE,
-    validation_split=0.2,
+    validation_split=0.02,
     subset="validation",
 )
 
